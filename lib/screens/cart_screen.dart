@@ -1,75 +1,123 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+//import '';
+import '../controllers/cart_controller.dart';
 
-class CartScreen extends StatefulWidget {
-  const CartScreen({Key? key}) : super(key: key);
-
+class CartScreen extends StatelessWidget {
   @override
-  _CartScreenState createState() => _CartScreenState();
+  Widget build(BuildContext context) {
+    final CartController cartController = Get.find();
+
+    return Scaffold(
+      body: GetBuilder<CartController>(
+        init: cartController,
+        builder: (controller) {
+          return ListView.builder(
+            itemCount: controller.cartItems.length,
+            itemBuilder: (context, index) {
+              return CardWidget(
+                product: controller.cartItems[index],
+                increaseQuantity: cartController.increaseQuantity,
+                decreaseQuantity: cartController.decreaseQuantity,
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
 }
 
-class _CartScreenState extends State<CartScreen> {
-  String _selectedOption = 'Edit Orders';
 
-  void _onOptionSelected(String option) {
-    setState(() {
-      _selectedOption = option;
-    });
-  }
+class CardWidget extends StatelessWidget {
+  final Map<String, dynamic> product;
+  final Function(Map<String, dynamic>) increaseQuantity;
+  final Function(Map<String, dynamic>) decreaseQuantity;
+
+  const CardWidget({
+    Key? key,
+    required this.product,
+    required this.increaseQuantity,
+    required this.decreaseQuantity,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Cart Page'),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
+    return Card(
+      margin: EdgeInsets.all(8.0),
+      child: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image on the left
+            Container(
+              width: 50,
+              height: 50,
               decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'Options',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
+
+                borderRadius: BorderRadius.circular(20),
+                image: DecorationImage(
+
+                  image: NetworkImage(product['imageUrl']),
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
-            ListTile(
-              title: Text('Edit Orders'),
-              onTap: () {
-                _onOptionSelected('Edit Orders');
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Delete Orders'),
-              onTap: () {
-                _onOptionSelected('Delete Orders');
-                Navigator.pop(context);
-              },
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Product name
+                  Text(
+                    product['name'],
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.0,
+                    ),
+                  ),
+                  SizedBox(height: 8.0),
+                  // Product description
+                  Text(
+                    product['description'],
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                  SizedBox(height: 8.0),
+                  // Increase and decrease quantity buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.remove),
+                        onPressed: () {
+                          // Decrease quantity
+                          print("I'm Decreased");
+                          decreaseQuantity(product);
+                        },
+                      ),
+                      Text(
+                        '${product['quantity']}',
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.add),
+                        onPressed: () {
+                          // Increase quantity
+                          print("I'm Increased");
+                          increaseQuantity(product);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
-      body: Center(
-        child: _selectedOption == 'Edit Orders'
-            ? _buildEditOrdersContent()
-            : _buildDeleteOrdersContent(),
-      ),
     );
   }
-
-  Widget _buildEditOrdersContent() {
-    // Replace this with the content for edit orders
-    return Text('Edit Orders Content');
-  }
-
-  Widget _buildDeleteOrdersContent() {
-    // Replace this with the content for delete orders
-    return Text('Delete Orders Content');
-  }
 }
+
+

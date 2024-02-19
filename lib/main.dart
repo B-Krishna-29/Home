@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 //import 'screens/payment_screen.dart';
 import 'package:get/get.dart';
+import 'controllers/cart_controller.dart';
 import 'fields/home.dart';
 
 void main() {
+  Get.put(CartController());
   runApp(MyApp());
 }
 
